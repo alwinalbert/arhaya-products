@@ -21,9 +21,9 @@ export default function CartDrawer() {
               <img src={p.images[0]} className="w-12 h-12 object-cover rounded" />
               <div className="flex-1">
                 <div className="text-sm">{p.name}</div>
-                <div className="text-xs text-gray-500">Qty: {it.quantity}</div>
+                <div className="text-xs text-gray-500">{it.weightGrams ? `${it.weightGrams} g x ` : 'Qty: '}{it.quantity}</div>
               </div>
-              <div className="text-sm">₹{p.price * it.quantity}</div>
+              <div className="text-sm">₹{(it.unitPrice ?? p.price) * it.quantity}</div>
               <button onClick={() => remove(it.productId)} className="text-rose-500 text-sm">Remove</button>
             </div>
           )

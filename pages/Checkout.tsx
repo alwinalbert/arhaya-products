@@ -27,6 +27,7 @@ export default function Checkout() {
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
       quantity: item.quantity,
+      weightGrams: item.weightGrams,
     }))
     window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, total, payment, form.transactionId)), '_blank', 'noopener,noreferrer')
     clear()

@@ -25,8 +25,13 @@ export default function ProductCard({ product }: Props) {
           <div className="text-2xl font-bold text-stone-900">₹{product.price}</div>
           {product.originalPrice && <div className="text-sm text-stone-400 line-through">₹{product.originalPrice}</div>}
         </div>
+        {product.gramPricing && <div className="mt-1 text-xs text-stone-500">Price shown per 1 kg. Choose your grams on the product page.</div>}
         <div className="mt-4 flex gap-2">
-          <button onClick={() => add(product.id, 1)} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0f1714]">Add to Cart</button>
+          {product.gramPricing ? (
+            <Link to={`/products/${product.slug}`} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#0f1714]">Choose weight</Link>
+          ) : (
+            <button onClick={() => add(product.id, 1)} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0f1714]">Add to Cart</button>
+          )}
           <Link to={`/products/${product.slug}`} className="rounded-full border border-[#e1d4c1] bg-[#f8f3ee] px-4 py-2.5 text-sm font-semibold text-stone-700 hover:border-[#d3b594] hover:bg-[#f1e7db]">View</Link>
         </div>
       </div>

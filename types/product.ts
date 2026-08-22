@@ -11,4 +11,5 @@ export interface Product {
   stock: number
   featured?: boolean
   bestseller?: boolean
+  gramPricing?: boolean
 }

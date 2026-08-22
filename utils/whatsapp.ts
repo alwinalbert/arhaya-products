@@ -9,7 +9,7 @@ export function productWhatsAppMessage(productName: string) {
   return `Hi Arhaya Products, I'm interested in ${productName}. Can you provide more details?`
 }
 
-type OrderItem = { productName: string; quantity: number }
+type OrderItem = { productName: string; quantity: number; weightGrams?: number }
 
 export function orderWhatsAppMessage(
   orderId: string,
@@ -19,7 +19,7 @@ export function orderWhatsAppMessage(
     payment: string,
     transactionId: string
 ) {
-  const itemLines = items.map((item) => `- ${item.productName} x ${item.quantity}`).join('\n')
+  const itemLines = items.map((item) => `- ${item.productName}${item.weightGrams ? ` (${item.weightGrams} g)` : ''} x ${item.quantity}`).join('\n')
 
   return [
     'New Arhaya order',

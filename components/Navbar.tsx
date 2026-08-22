@@ -18,8 +18,8 @@ export default function Navbar() {
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
 
-          <Link to="/" onClick={closeMenu} className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-[#1f1a17]">
-            <img src="/assets/images/logo.jpg" alt="Arhaya logo" className="h-9 w-9 rounded-full object-cover" />
+          <Link to="/" onClick={closeMenu} aria-label="Arhaya home" className="flex items-center gap-2 text-[26px] font-semibold font-serif tracking-[-0.045em] text-[#1f1a17] sm:text-3xl">
+            <img src="/assets/images/logo.jpg" alt="Arhaya botanical logo" className="h-9 w-9 rounded-full object-cover" />
             Arhaya
           </Link>
 

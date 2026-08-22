@@ -15,6 +15,7 @@ const products: Product[] = [
     stock: 120,
     featured: true,
     bestseller: true,
+    gramPricing: true,
   },
   {
     id: 'p2',
@@ -43,6 +44,7 @@ const products: Product[] = [
     stock: 200,
     featured: false,
     bestseller: false,
+    gramPricing: true,
   },
 ]
 

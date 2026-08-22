@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom'
 import ProductGrid from '../components/ProductGrid'
 
 const highlights = [
-  { icon: Leaf, title: 'Botanicals you trust', text: 'Familiar ingredients chosen for everyday rituals and gentle care.' },
-  { icon: ShieldCheck, title: 'Thoughtful quality', text: 'Crafted to feel premium, simple, and consistent with your routine.' },
-  { icon: Star, title: 'Loved by repeat buyers', text: 'Small-batch essentials with a warm, natural finish customers return for.' },
+  { icon: Leaf, title: 'Plant-led wellbeing', text: 'Familiar botanicals chosen to bring a more grounded, mindful rhythm to everyday life.' },
+  { icon: ShieldCheck, title: 'Nature-led solutions', text: 'Thoughtfully made essentials that turn nature’s wisdom into practical daily care.' },
+  { icon: Star, title: 'Care for tomorrow', text: 'Small, considered choices for a healthier quality of life today and a more resilient future.' },
 ]
 
 export default function Home() {
@@ -18,14 +18,17 @@ export default function Home() {
           <div className="max-w-2xl">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d7c1a5] bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#5d4f45] shadow-sm">
               <Leaf size={12} />
-              Botanical care
+              Botanical care · Future health
             </p>
             <h1 className="text-5xl font-black leading-[0.95] tracking-[-0.06em] text-[#1b1714] md:text-7xl">
               Nature’s glow,
               <span className="mt-2 block text-[#214a35]">thoughtfully bottled.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-[#514a46] md:text-xl">
-              Arhaya brings familiar botanicals into modern rituals — gentle, grounded, and beautifully simple for everyday self-care.
+              Arhaya brings familiar botanicals into modern rituals — gentle, grounded, and beautifully simple for everyday wellbeing and a healthier future.
+            </p>
+            <p className="mt-4 max-w-lg text-sm font-semibold leading-6 text-[#214a35]">
+              Nature-led solutions for better living today and a more resilient tomorrow.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link to="/shop" className="inline-flex items-center gap-2 rounded-full bg-[#1f2d29] px-7 py-3.5 text-base font-semibold text-white shadow-[0_14px_25px_rgba(31,45,41,0.15)] hover:-translate-y-0.5 hover:bg-[#10201b]">
@@ -82,14 +85,14 @@ export default function Home() {
           <div className="grid gap-10 md:grid-cols-[0.95fr_1.2fr] md:items-center">
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#7a675a]">Our story</p>
-              <h3 className="text-3xl font-black tracking-tight text-[#1b1714] md:text-4xl">Care rooted in familiar botanicals.</h3>
+              <h3 className="text-3xl font-black tracking-tight text-[#1b1714] md:text-4xl">A healthier future, rooted in nature.</h3>
             </div>
             <div className="space-y-5 text-lg leading-8 text-[#514a46]">
               <p>
-                We believe a meaningful routine can begin with ingredients you recognise. Arhaya brings this sense of ritual to everyday self-care with a warm, considered point of view.
+                We believe nature can guide better ways of living. Arhaya brings familiar botanicals into thoughtful daily rituals that support quality of life today and a more resilient future for the generations ahead.
               </p>
               <p>
-                Thoughtful ingredients, a calm daily rhythm, and naturally beautiful essentials that feel good on the skin and in your life.
+                Thoughtful ingredients, a calm daily rhythm, and naturally beautiful essentials for people seeking practical, plant-led solutions for everyday wellbeing.
               </p>
             </div>
           </div>

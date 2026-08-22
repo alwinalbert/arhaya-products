@@ -29,7 +29,7 @@ export default function CartPage() {
                 <img src={p.images[0]} className="w-24 h-24 object-cover rounded" />
                 <div className="flex-1">
                   <div className="font-medium">{p.name}</div>
-                  <div className="text-sm text-gray-500">₹{p.price}</div>
+                  <div className="text-sm text-gray-500">{it.weightGrams ? `${it.weightGrams} g - ` : ''}₹{it.unitPrice ?? p.price}</div>
                   <div className="mt-2 flex items-center gap-2">
                     <button onClick={() => update(p.id, it.quantity - 1)} className="px-2 border">-</button>
                     <div>{it.quantity}</div>
@@ -37,7 +37,7 @@ export default function CartPage() {
                     <button onClick={() => remove(p.id)} className="text-rose-500 ml-4">Remove</button>
                   </div>
                 </div>
-                <div>₹{p.price * it.quantity}</div>
+                <div>₹{(it.unitPrice ?? p.price) * it.quantity}</div>
               </div>
             )
           })}
