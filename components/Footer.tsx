@@ -1,6 +1,7 @@
 import React from 'react'
 import { Camera, MessageCircle, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { generateWhatsAppUrl } from '../utils/whatsapp'
 
 export default function Footer() {
   return (
@@ -18,7 +19,7 @@ export default function Footer() {
             <a href="https://www.instagram.com/arhaya_products" target="_blank" rel="noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#1d1b1a] shadow-sm ring-1 ring-[#e4d7c8] hover:shadow-md">
               <Camera size={18} />
             </a>
-            <a href="https://wa.me/919876543210?text=Hi%20Arhaya%20Products" target="_blank" rel="noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm hover:shadow-md">
+            <a href={generateWhatsAppUrl('Hi Arhaya Products')} target="_blank" rel="noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm hover:shadow-md">
               <MessageCircle size={18} />
             </a>
           </div>
