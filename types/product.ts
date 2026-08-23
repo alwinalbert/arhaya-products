@@ -12,4 +12,12 @@ export interface Product {
   featured?: boolean
   bestseller?: boolean
   gramPricing?: boolean
+  packSize?: string
+  packOptions?: PackOption[]
+}
+
+export interface PackOption {
+  grams: number
+  price: number
+  originalPrice: number
 }

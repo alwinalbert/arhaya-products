@@ -4,6 +4,8 @@ import { useCartStore } from '../store/cartStore'
 import products from '../data/products'
 import { generateWhatsAppUrl, orderWhatsAppMessage } from '../utils/whatsapp'
 
+const UPI_ID = 'stk-9400924800@okbizaxis'
+
 function generateOrderId() {
   return 'ARH-' + Math.random().toString(36).substr(2, 6).toUpperCase()
 }
@@ -16,13 +18,20 @@ export default function Checkout() {
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', state: '', pin: '', transactionId: '' })
   const [payment, setPayment] = useState('upi')
+  const [isMobileDevice] = useState(() => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
+  const [upiCopied, setUpiCopied] = useState(false)
+
+  const copyUpiId = async () => {
+    await navigator.clipboard.writeText(UPI_ID)
+    setUpiCopied(true)
+  }
 
   const placeOrder = () => {
     if (!form.name || !form.phone || !form.address || !form.pin || !form.transactionId) {
       return alert('Please fill all required fields')
     }
     const orderId = generateOrderId()
-    const order = { id: orderId, items, total, customer: form, payment, transactionId: form.transactionId }
+    const order = { id: orderId, items, subtotal: total, deliveryCharge: 0, total, customer: form, payment, transactionId: form.transactionId }
     localStorage.setItem('last_order', JSON.stringify(order))
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
@@ -54,9 +63,26 @@ export default function Checkout() {
         <div className="flex gap-4">
           <label className="inline-flex items-center gap-2"><input type="radio" name="pay" checked={payment === 'upi'} onChange={() => setPayment('upi')} /> UPI</label>
         </div>
+        <div className="mt-4 rounded border bg-amber-50 p-4">
+          <div className="text-sm text-gray-600">Pay securely via UPI</div>
+          <div className="mt-1 font-semibold">UPI ID: {UPI_ID}</div>
+          {isMobileDevice ? (
+            <a
+              href={`upi://pay?pa=${UPI_ID}&pn=Arhaya%20Products&am=${total}&cu=INR`}
+              className="mt-3 inline-block rounded bg-amber-600 px-4 py-2 font-semibold text-white"
+            >
+              Pay ₹{total} via UPI
+            </a>
+          ) : (
+            <button type="button" onClick={copyUpiId} className="mt-3 rounded bg-amber-600 px-4 py-2 font-semibold text-white">
+              {upiCopied ? 'UPI ID copied' : 'Copy UPI ID'}
+            </button>
+          )}
+          {!isMobileDevice && <p className="mt-2 text-sm text-gray-600">Open your UPI app, pay ₹{total}, then enter the transaction ID below.</p>}
+        </div>
         <div className="mt-4">
           <input required placeholder="Transaction ID *" value={form.transactionId} onChange={(e) => setForm({ ...form, transactionId: e.target.value })} className="w-full p-2 border rounded" />
-          <p className="mt-1 text-sm text-gray-500">Complete your payment first, then enter the transaction ID.</p>
+          <p className="mt-1 text-sm text-gray-500">Complete the UPI payment, then enter the transaction ID shown by your payment app.</p>
         </div>
         <div className="mt-6">
           <button type="submit" className="px-6 py-3 bg-amber-600 text-white rounded">Place Order</button>
@@ -66,6 +92,7 @@ export default function Checkout() {
       <aside className="p-4 border rounded">
         <h3 className="font-semibold">Order Summary</h3>
         <div className="mt-2">Items: {items.length}</div>
+        <div className="mt-2">Delivery Charge: <span className="font-semibold text-green-700">Free</span></div>
         <div className="mt-2">Total: ₹{total}</div>
       </aside>
     </div>

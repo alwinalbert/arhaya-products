@@ -46,8 +46,8 @@ export default function CartPage() {
         <div className="p-4 border rounded">
           <h3 className="font-semibold">Order Summary</h3>
           <div className="mt-2 flex justify-between text-gray-600"> <span>Subtotal</span> <span>₹{total}</span></div>
-          <div className="mt-2 flex justify-between text-gray-600"> <span>Shipping</span> <span>₹40</span></div>
-          <div className="mt-2 flex justify-between text-gray-800 font-semibold"> <span>Total</span> <span>₹{total + 40}</span></div>
+          <div className="mt-2 flex justify-between text-gray-600"> <span>Delivery Charge</span> <span className="font-semibold text-green-700">Free</span></div>
+          <div className="mt-2 flex justify-between text-gray-800 font-semibold"> <span>Total</span> <span>₹{total}</span></div>
           <div className="mt-4 flex flex-col gap-2">
             <Link to="/shop" className="px-4 py-2 border rounded text-center">Continue Shopping</Link>
             <Link to="/checkout" className="px-4 py-2 bg-amber-600 text-white rounded text-center">Proceed to Checkout</Link>

@@ -32,6 +32,7 @@ export function orderWhatsAppMessage(
     '',
     'Items:',
     itemLines,
+    'Delivery Charge: Free',
     `Total: ₹${total}`,
       `Payment: ${payment.toUpperCase()}`,
       `Transaction ID: ${transactionId}`,

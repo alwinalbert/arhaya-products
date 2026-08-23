@@ -30,6 +30,9 @@ export default function Home() {
             <p className="mt-4 max-w-lg text-sm font-semibold leading-6 text-[#214a35]">
               Nature-led solutions for better living today and a more resilient tomorrow.
             </p>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-[#584e49]">
+              Founded by two engineers, Arhaya is making thoughtful, nature-led choices easier to bring into everyday family life.
+            </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link to="/shop" className="inline-flex items-center gap-2 rounded-full bg-[#1f2d29] px-7 py-3.5 text-base font-semibold text-white shadow-[0_14px_25px_rgba(31,45,41,0.15)] hover:-translate-y-0.5 hover:bg-[#10201b]">
                 Shop now <ArrowRight size={18} />
@@ -89,10 +92,10 @@ export default function Home() {
             </div>
             <div className="space-y-5 text-lg leading-8 text-[#514a46]">
               <p>
-                We believe nature can guide better ways of living. Arhaya brings familiar botanicals into thoughtful daily rituals that support quality of life today and a more resilient future for the generations ahead.
+                Arhaya began with two engineers and one shared vision: to create a healthier future through pure, nature-led alternatives.
               </p>
               <p>
-                Thoughtful ingredients, a calm daily rhythm, and naturally beautiful essentials for people seeking practical, plant-led solutions for everyday wellbeing.
+                We believe thoughtful choices from nature can make everyday life healthier, tastier, and safer. Our essentials are designed for practical routines, accessible wellbeing, and a more resilient future.
               </p>
             </div>
           </div>

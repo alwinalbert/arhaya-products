@@ -8,7 +8,17 @@ type Props = { product: Product }
 export default function ProductCard({ product }: Props) {
   const add = useCartStore((s) => s.addItem)
 
-  const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0
+  const packOptions = product.packOptions ?? (product.gramPricing
+    ? [50, 100, 250, 500, 1000].map((grams) => ({
+      grams,
+      price: Math.round((product.price * grams) / 1000),
+      originalPrice: Math.round(((product.originalPrice ?? product.price) * grams) / 1000),
+    }))
+    : undefined)
+  const lowestPack = packOptions?.reduce((lowest, option) => option.price < lowest.price ? option : lowest)
+  const displayPrice = lowestPack?.price ?? product.price
+  const displayOriginalPrice = lowestPack?.originalPrice ?? product.originalPrice
+  const discount = displayOriginalPrice ? Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100) : 0
 
   return (
     <div className="card-hover overflow-hidden rounded-[28px] border border-[#ebdfd0] bg-white/80 p-3 shadow-[0_12px_30px_rgba(47,35,24,0.05)] backdrop-blur-sm">
@@ -21,11 +31,13 @@ export default function ProductCard({ product }: Props) {
           {discount > 0 && <span className="rounded-full bg-[#eef7f0] px-2 py-1 text-[#2f6d50]">{discount}% off</span>}
         </div>
         <h3 className="text-xl font-semibold tracking-tight text-stone-900">{product.name}</h3>
+        {product.shortDescription && <p className="mt-1 text-sm leading-6 text-stone-500">{product.shortDescription}</p>}
         <div className="mt-3 flex items-end gap-2">
-          <div className="text-2xl font-bold text-stone-900">₹{product.price}</div>
-          {product.originalPrice && <div className="text-sm text-stone-400 line-through">₹{product.originalPrice}</div>}
+          <div className="text-2xl font-bold text-stone-900">₹{displayPrice}</div>
+          {displayOriginalPrice && <div className="text-sm text-stone-400 line-through">₹{displayOriginalPrice}</div>}
         </div>
-        {product.gramPricing && <div className="mt-1 text-xs text-stone-500">Price shown per 1 kg. Choose your grams on the product page.</div>}
+        {product.packSize && <div className="mt-1 text-xs text-stone-500">Pack size: {product.packSize}</div>}
+        {product.gramPricing && <div className="mt-1 text-xs text-stone-500">From {lowestPack?.grams ?? 1000} g · Choose your pack size.</div>}
         <div className="mt-4 flex gap-2">
           {product.gramPricing ? (
             <Link to={`/products/${product.slug}`} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#0f1714]">Choose weight</Link>

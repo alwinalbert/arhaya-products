@@ -16,13 +16,18 @@ const products: Product[] = [
     featured: true,
     bestseller: true,
     gramPricing: true,
+    packOptions: [
+      { grams: 30, price: 149, originalPrice: 165 },
+      { grams: 50, price: 249, originalPrice: 280 },
+      { grams: 125, price: 449, originalPrice: 563 },
+      { grams: 250, price: 749, originalPrice: 1125 },
+    ],
   },
   {
     id: 'p2',
     slug: 'mineral-deodorant',
     name: 'Mineral Deodorant (Unscented)',
-    price: 380,
-    originalPrice: 999,
+    price: 449,
     description: 'Natural mineral deodorant stick — chemical-free and gentle on skin.',
     shortDescription: 'Gentle, chemical-free mineral deodorant',
     images: ['/assets/images/deodrant.png', '/assets/images/deodrant specialities.png'],
@@ -30,6 +35,7 @@ const products: Product[] = [
     stock: 80,
     featured: false,
     bestseller: true,
+    packSize: '75 g',
   },
   {
     id: 'p3',
@@ -45,6 +51,13 @@ const products: Product[] = [
     featured: false,
     bestseller: false,
     gramPricing: true,
+    packOptions: [
+      { grams: 50, price: 122, originalPrice: 125 },
+      { grams: 125, price: 299, originalPrice: 313 },
+      { grams: 250, price: 559, originalPrice: 625 },
+      { grams: 500, price: 999, originalPrice: 1250 },
+      { grams: 1000, price: 1749, originalPrice: 2500 },
+    ],
   },
 ]
 

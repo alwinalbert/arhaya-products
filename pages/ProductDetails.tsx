@@ -11,12 +11,15 @@ export default function ProductDetails() {
   const navigate = useNavigate()
   const addItem = useCartStore((s) => s.addItem)
   const [qty, setQty] = useState(1)
-  const [weightGrams, setWeightGrams] = useState(1000)
+  const [weightGrams, setWeightGrams] = useState(() => p?.packOptions?.[0]?.grams ?? 1000)
 
   if (!p) return <div className="container mx-auto p-8">Product not found</div>
 
   const isGramPriced = p.gramPricing === true
-  const unitPrice = isGramPriced ? Math.round((p.price * weightGrams) / 1000) : p.price
+  const selectedPack = p.packOptions?.find((option) => option.grams === weightGrams)
+  const unitPrice = isGramPriced ? (selectedPack?.price ?? Math.round((p.price * weightGrams) / 1000)) : p.price
+  const originalPrice = isGramPriced ? (selectedPack?.originalPrice ?? p.originalPrice) : p.originalPrice
+  const discount = originalPrice ? Math.round(((originalPrice - unitPrice) / originalPrice) * 100) : 0
   const cartOptions = isGramPriced ? { weightGrams, unitPrice } : undefined
 
   const buyNow = () => {
@@ -32,14 +35,22 @@ export default function ProductDetails() {
         </div>
         <div>
           <h1 className="text-2xl font-semibold">{p.name}</h1>
-          <div className="mt-2 text-lg font-bold">₹{unitPrice}</div>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="text-lg font-bold">₹{unitPrice}</div>
+            {originalPrice && <div className="text-sm text-gray-400 line-through">₹{originalPrice}</div>}
+            {discount > 0 && <div className="text-sm font-semibold text-green-700">{discount}% OFF</div>}
+          </div>
+          {p.packSize && <div className="mt-1 text-sm text-gray-500">Pack size: {p.packSize}</div>}
           {isGramPriced && (
             <div className="mt-4 max-w-xs">
               <label htmlFor="weight" className="block text-sm font-medium text-gray-700">Choose quantity</label>
               <select id="weight" value={weightGrams} onChange={(event) => setWeightGrams(Number(event.target.value))} className="mt-1 w-full rounded border p-2">
-                {[50, 100, 250, 500, 1000].map((grams) => <option key={grams} value={grams}>{grams} g - ₹{Math.round((p.price * grams) / 1000)}</option>)}
+                {(p.packOptions ?? [50, 100, 250, 500, 1000].map((grams) => ({ grams, price: Math.round((p.price * grams) / 1000), originalPrice: Math.round(((p.originalPrice ?? p.price) * grams) / 1000) }))).map((option) => {
+                  const optionDiscount = Math.round(((option.originalPrice - option.price) / option.originalPrice) * 100)
+                  return <option key={option.grams} value={option.grams}>{option.grams} g - ₹{option.price} ({optionDiscount}% OFF)</option>
+                })}
               </select>
-              <p className="mt-1 text-xs text-gray-500">Calculated from ₹{p.price} per 1 kg.</p>
+              <p className="mt-1 text-xs text-gray-500">Select the pack size that suits you.</p>
             </div>
           )}
           <p className="mt-4 text-gray-700">{p.description}</p>
