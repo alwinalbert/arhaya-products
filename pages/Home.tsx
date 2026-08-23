@@ -14,23 +14,23 @@ export default function Home() {
     <div className="pb-16">
       <section className="relative overflow-hidden bg-[#f3eadf]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(214,180,128,0.18),transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(108,137,112,0.18),transparent_28%)]" />
-        <div className="container relative mx-auto grid min-h-[540px] items-center gap-12 py-18 lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
+        <div className="container relative mx-auto grid min-h-[540px] items-center gap-10 py-12 sm:gap-12 sm:py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
           <div className="max-w-2xl">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d7c1a5] bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#5d4f45] shadow-sm">
               <Leaf size={12} />
               Botanical care · Future health
             </p>
-            <h1 className="text-5xl font-black leading-[0.95] tracking-[-0.06em] text-[#1b1714] md:text-7xl">
+            <h1 className="text-4xl font-black leading-[0.98] tracking-[-0.06em] text-[#1b1714] sm:text-5xl md:text-7xl">
               Nature’s glow,
               <span className="mt-2 block text-[#214a35]">thoughtfully bottled.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-[#514a46] md:text-xl">
+            <p className="mt-6 max-w-xl text-base font-semibold leading-7 text-[#514a46] sm:text-lg sm:leading-8 md:text-xl">
               Arhaya brings familiar botanicals into modern rituals — gentle, grounded, and beautifully simple for everyday wellbeing and a healthier future.
             </p>
-            <p className="mt-4 max-w-lg text-sm font-semibold leading-6 text-[#214a35]">
+            <p className="mt-4 max-w-xl text-base font-semibold leading-7 text-[#214a35] sm:text-lg sm:leading-8">
               Nature-led solutions for better living today and a more resilient tomorrow.
             </p>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-[#584e49]">
+            <p className="mt-4 max-w-xl text-base font-semibold leading-7 text-[#584e49] sm:text-lg sm:leading-8">
               Founded by two engineers, Arhaya is making thoughtful, nature-led choices easier to bring into everyday family life.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
@@ -47,7 +47,7 @@ export default function Home() {
             <div className="absolute -inset-4 rounded-[40px] bg-[#d9c3a3]/35 blur-2xl" />
             <div className="relative overflow-hidden rounded-[32px] border border-[#e4d6c0] bg-[#1d2b21] p-2 shadow-[0_30px_60px_rgba(70,53,38,0.18)]">
               <img src="/assets/images/three together.png" alt="Arhaya botanical essentials" className="aspect-[4/5] w-full rounded-[26px] object-cover" />
-              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between rounded-full bg-[#fffaf2]/90 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#2d382d] backdrop-blur-sm">
+              <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[#fffaf2]/90 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#2d382d] backdrop-blur-sm sm:bottom-6 sm:left-6 sm:right-6 sm:rounded-full sm:text-xs sm:tracking-[0.14em]">
                 <span>Three daily essentials</span>
                 <span className="text-[#9a6b2f]">Made with care</span>
               </div>

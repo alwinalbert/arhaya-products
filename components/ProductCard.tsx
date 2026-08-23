@@ -19,6 +19,7 @@ export default function ProductCard({ product }: Props) {
   const displayPrice = lowestPack?.price ?? product.price
   const displayOriginalPrice = lowestPack?.originalPrice ?? product.originalPrice
   const discount = displayOriginalPrice ? Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100) : 0
+  const productType = product.name.toLowerCase().includes('deodorant') ? 'Mineral Based' : 'Botanical'
 
   return (
     <div className="card-hover overflow-hidden rounded-[28px] border border-[#ebdfd0] bg-white/80 p-3 shadow-[0_12px_30px_rgba(47,35,24,0.05)] backdrop-blur-sm">
@@ -26,13 +27,13 @@ export default function ProductCard({ product }: Props) {
         <img src={product.images[0]} alt={product.name} className="h-64 w-full rounded-[20px] object-cover transition-transform duration-500 hover:scale-[1.03]" />
       </Link>
       <div className="mt-4 px-1 pb-1">
-        <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a675a]">
-          <span>Botanical</span>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a675a]">
+          <span>{productType}</span>
           {discount > 0 && <span className="rounded-full bg-[#eef7f0] px-2 py-1 text-[#2f6d50]">{discount}% off</span>}
         </div>
-        <h3 className="text-xl font-semibold tracking-tight text-stone-900">{product.name}</h3>
+        <h3 className="text-lg font-semibold tracking-tight text-stone-900 sm:text-xl">{product.name}</h3>
         {product.shortDescription && <p className="mt-1 text-sm leading-6 text-stone-500">{product.shortDescription}</p>}
-        <div className="mt-3 flex items-end gap-2">
+        <div className="mt-3 flex flex-wrap items-end gap-2">
           <div className="text-2xl font-bold text-stone-900">₹{displayPrice}</div>
           {displayOriginalPrice && <div className="text-sm text-stone-400 line-through">₹{displayOriginalPrice}</div>}
         </div>

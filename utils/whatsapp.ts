@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = '+918108118903'
+const WHATSAPP_NUMBER = '+919400924800'
 
 export function generateWhatsAppUrl(message: string) {
   const base = 'https://wa.me/' + WHATSAPP_NUMBER.replace(/[^0-9]/g, '')

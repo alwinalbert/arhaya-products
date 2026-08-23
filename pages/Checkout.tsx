@@ -17,7 +17,6 @@ export default function Checkout() {
   const navigate = useNavigate()
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', state: '', pin: '', transactionId: '' })
-  const [payment, setPayment] = useState('upi')
   const [isMobileDevice] = useState(() => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
   const [upiCopied, setUpiCopied] = useState(false)
 
@@ -31,14 +30,14 @@ export default function Checkout() {
       return alert('Please fill all required fields')
     }
     const orderId = generateOrderId()
-    const order = { id: orderId, items, subtotal: total, deliveryCharge: 0, total, customer: form, payment, transactionId: form.transactionId }
+    const order = { id: orderId, items, subtotal: total, deliveryCharge: 0, total, customer: form, payment: 'upi', transactionId: form.transactionId }
     localStorage.setItem('last_order', JSON.stringify(order))
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
       quantity: item.quantity,
       weightGrams: item.weightGrams,
     }))
-    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, total, payment, form.transactionId)), '_blank', 'noopener,noreferrer')
+    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, total, 'upi', form.transactionId)), '_blank', 'noopener,noreferrer')
     clear()
     navigate('/order-success')
   }
@@ -61,7 +60,7 @@ export default function Checkout() {
 
         <h2 className="text-xl font-semibold mt-6 mb-2">Payment</h2>
         <div className="flex gap-4">
-          <label className="inline-flex items-center gap-2"><input type="radio" name="pay" checked={payment === 'upi'} onChange={() => setPayment('upi')} /> UPI</label>
+          <label className="inline-flex items-center gap-2"><input type="radio" name="pay" checked readOnly /> UPI</label>
         </div>
         <div className="mt-4 rounded border bg-amber-50 p-4">
           <div className="text-sm text-gray-600">Pay securely via UPI</div>
