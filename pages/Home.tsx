@@ -87,15 +87,15 @@ export default function Home() {
         <div className="rounded-[32px] border border-[#e5d9c7] bg-[linear-gradient(135deg,#fbf7f2,#f3ebdf)] p-8 shadow-[0_16px_40px_rgba(71,52,35,0.06)] md:p-12">
           <div className="grid gap-10 md:grid-cols-[0.95fr_1.2fr] md:items-center">
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#7a675a]">Our story</p>
-              <h3 className="text-3xl font-black tracking-tight text-[#1b1714] md:text-4xl">A healthier future, rooted in nature.</h3>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#7a675a]">Introduction to Arhaya</p>
+              <h3 className="text-3xl font-black tracking-tight text-[#1b1714] md:text-4xl">Two engineers. One healthier future.</h3>
             </div>
             <div className="space-y-5 text-lg leading-8 text-[#514a46]">
               <p>
-                Arhaya began with two engineers and one shared vision: to create a healthier future through pure, nature-led alternatives.
+                Arhaya was founded by two engineers with a shared vision: to make everyday wellbeing more accessible through pure, nature-led alternatives. We started with a simple belief that health can begin with thoughtful choices from nature.
               </p>
               <p>
-                We believe thoughtful choices from nature can make everyday life healthier, tastier, and safer. Our essentials are designed for practical routines, accessible wellbeing, and a more resilient future.
+                From healthier, tastier family routines to a more resilient future, Arhaya brings nature’s finest solutions into daily life with care, simplicity, and purpose.
               </p>
             </div>
           </div>

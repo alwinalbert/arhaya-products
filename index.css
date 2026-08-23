@@ -30,6 +30,35 @@ body {
   color: #1c1917;
 }
 
+.announcement-track {
+  animation: announcement-marquee 32s linear infinite;
+}
+
+.announcement-bar:hover .announcement-track {
+  animation-play-state: paused;
+}
+
+@keyframes announcement-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announcement-track {
+    animation: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .announcement-track > div:nth-child(2) {
+    display: none;
+  }
+}
+
 img {
   max-width: 100%;
   display: block;
