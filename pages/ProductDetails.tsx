@@ -36,8 +36,16 @@ export default function ProductDetails() {
         <div>
           <h1 className="text-2xl font-semibold">{p.name}</h1>
           <div className="mt-2 flex items-center gap-2">
-            <div className="text-lg font-bold">₹{unitPrice}</div>
-            {originalPrice && <div className="text-sm text-gray-400 line-through">₹{originalPrice}</div>}
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Sale price</div>
+              <div className="text-lg font-bold">₹{unitPrice}</div>
+            </div>
+            {originalPrice && (
+              <div className="text-sm text-gray-400">
+                <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em]">MRP</span>
+                <span className="line-through">₹{originalPrice}</span>
+              </div>
+            )}
             {discount > 0 && <div className="text-sm font-semibold text-green-700">{discount}% OFF</div>}
           </div>
           {p.packSize && <div className="mt-1 text-sm text-gray-500">Pack size: {p.packSize}</div>}
@@ -47,7 +55,7 @@ export default function ProductDetails() {
               <select id="weight" value={weightGrams} onChange={(event) => setWeightGrams(Number(event.target.value))} className="mt-1 w-full rounded border p-2">
                 {(p.packOptions ?? [50, 100, 250, 500, 1000].map((grams) => ({ grams, price: Math.round((p.price * grams) / 1000), originalPrice: Math.round(((p.originalPrice ?? p.price) * grams) / 1000) }))).map((option) => {
                   const optionDiscount = Math.round(((option.originalPrice - option.price) / option.originalPrice) * 100)
-                  return <option key={option.grams} value={option.grams}>{option.grams} g - ₹{option.price} ({optionDiscount}% OFF)</option>
+                  return <option key={option.grams} value={option.grams}>{option.grams} g - ₹{option.price} (MRP ₹{option.originalPrice}, {optionDiscount}% OFF)</option>
                 })}
               </select>
               <p className="mt-1 text-xs text-gray-500">Select the pack size that suits you.</p>

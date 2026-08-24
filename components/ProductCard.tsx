@@ -34,8 +34,16 @@ export default function ProductCard({ product }: Props) {
         <h3 className="text-lg font-semibold tracking-tight text-stone-900 sm:text-xl">{product.name}</h3>
         {product.shortDescription && <p className="mt-1 text-sm leading-6 text-stone-500">{product.shortDescription}</p>}
         <div className="mt-3 flex flex-wrap items-end gap-2">
-          <div className="text-2xl font-bold text-stone-900">₹{displayPrice}</div>
-          {displayOriginalPrice && <div className="text-sm text-stone-400 line-through">₹{displayOriginalPrice}</div>}
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400">Sale price</div>
+            <div className="text-2xl font-bold text-stone-900">₹{displayPrice}</div>
+          </div>
+          {displayOriginalPrice && (
+            <div className="pb-1 text-sm text-stone-400">
+              <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.12em]">MRP</span>
+              <span className="line-through">₹{displayOriginalPrice}</span>
+            </div>
+          )}
         </div>
         {product.packSize && <div className="mt-1 text-xs text-stone-500">Pack size: {product.packSize}</div>}
         {product.gramPricing && <div className="mt-1 text-xs text-stone-500">From {lowestPack?.grams ?? 1000} g · Choose your pack size.</div>}
