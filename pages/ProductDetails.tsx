@@ -22,6 +22,17 @@ export default function ProductDetails() {
   const discount = originalPrice ? Math.round(((originalPrice - unitPrice) / originalPrice) * 100) : 0
   const cartOptions = isGramPriced ? { weightGrams, unitPrice } : undefined
 
+  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    const currentScrollY = window.scrollY
+    addItem(p.id, qty, cartOptions)
+    event.currentTarget.blur()
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: currentScrollY, behavior: 'auto' })
+    })
+  }
+
   const buyNow = () => {
     addItem(p.id, qty, cartOptions)
     navigate('/checkout')
@@ -66,8 +77,8 @@ export default function ProductDetails() {
             <QuantitySelector value={qty} onChange={setQty} max={p.stock} />
           </div>
           <div className="mt-4 flex gap-3">
-            <button onClick={() => addItem(p.id, qty, cartOptions)} className="px-4 py-2 bg-amber-600 text-white rounded">Add to Cart</button>
-            <button onClick={buyNow} className="px-4 py-2 border rounded">Buy Now</button>
+            <button type="button" onClick={handleAddToCart} className="px-4 py-2 bg-amber-600 text-white rounded">Add to Cart</button>
+            <button type="button" onClick={buyNow} className="px-4 py-2 border rounded">Buy Now</button>
             <a href={generateWhatsAppUrl(productWhatsAppMessage(p.name))} target="_blank" rel="noreferrer" className="px-4 py-2 bg-green-600 text-white rounded">WhatsApp</a>
           </div>
         </div>

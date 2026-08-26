@@ -28,6 +28,7 @@ const products: Product[] = [
     slug: 'mineral-deodorant',
     name: 'Mineral Deodorant (Unscented)',
     price: 449,
+    originalPrice: 999,
     description: 'Natural mineral deodorant stick — chemical-free and gentle on skin.',
     shortDescription: 'Gentle, chemical-free mineral deodorant',
     images: ['/assets/images/deodrant.png', '/assets/images/deodrant specialities.png'],

@@ -8,6 +8,17 @@ type Props = { product: Product }
 export default function ProductCard({ product }: Props) {
   const add = useCartStore((s) => s.addItem)
 
+  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    const currentScrollY = window.scrollY
+    add(product.id, 1)
+    event.currentTarget.blur()
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: currentScrollY, behavior: 'auto' })
+    })
+  }
+
   const packOptions = product.packOptions ?? (product.gramPricing
     ? [50, 100, 250, 500, 1000].map((grams) => ({
       grams,
@@ -51,7 +62,7 @@ export default function ProductCard({ product }: Props) {
           {product.gramPricing ? (
             <Link to={`/products/${product.slug}`} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#0f1714]">Choose weight</Link>
           ) : (
-            <button onClick={() => add(product.id, 1)} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0f1714]">Add to Cart</button>
+            <button type="button" onClick={handleAddToCart} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0f1714]">Add to Cart</button>
           )}
           <Link to={`/products/${product.slug}`} className="rounded-full border border-[#e1d4c1] bg-[#f8f3ee] px-4 py-2.5 text-sm font-semibold text-stone-700 hover:border-[#d3b594] hover:bg-[#f1e7db]">View</Link>
         </div>
