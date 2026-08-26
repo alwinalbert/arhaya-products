@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetails from './pages/ProductDetails'
@@ -19,9 +19,20 @@ import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
 import AnnouncementBar from './components/AnnouncementBar'
 
+function ScrollToTopOnRouteChange() {
+  const { pathname } = useLocation()
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [pathname])
+
+  return null
+}
+
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-stone-50 text-stone-900">
+      <ScrollToTopOnRouteChange />
       <AnnouncementBar />
       <Navbar />
       <main className="flex-1">
