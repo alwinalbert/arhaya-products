@@ -42,7 +42,7 @@ export default function ProductDetails() {
     <div className="container mx-auto py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <img src={p.images[0]} alt={p.name} className="w-full rounded" />
+          <img src={p.images[0]} alt={p.name} className={`${p.slug === 'wild-turmeric' ? 'aspect-[673/713] object-contain' : 'aspect-[4/3] object-cover'} w-full rounded object-center`} />
         </div>
         <div>
           <h1 className="text-2xl font-semibold">{p.name}</h1>

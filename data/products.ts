@@ -2,28 +2,6 @@ import { Product } from '../types/product'
 
 const products: Product[] = [
   {
-    id: 'p1',
-    slug: 'wild-turmeric',
-    name: 'Wild Turmeric (Kasthoori Manjal)',
-    price: 2500,
-    originalPrice: 3500,
-    description:
-      '100% pure wild turmeric powder. Great for skin and overall wellness. Sourced ethically.',
-    shortDescription: 'Pure Kasthoori Manjal — skin & glow care',
-    images: ['/assets/images/manjal.png', '/assets/images/three together.png'],
-    category: 'Wellness',
-    stock: 120,
-    featured: true,
-    bestseller: true,
-    gramPricing: true,
-    packOptions: [
-      { grams: 30, price: 149, originalPrice: 165 },
-      { grams: 50, price: 249, originalPrice: 280 },
-      { grams: 125, price: 449, originalPrice: 563 },
-      { grams: 250, price: 749, originalPrice: 1125 },
-    ],
-  },
-  {
     id: 'p2',
     slug: 'mineral-deodorant',
     name: 'Mineral Deodorant (Unscented)',
@@ -37,6 +15,28 @@ const products: Product[] = [
     featured: false,
     bestseller: true,
     packSize: '75 g',
+  },
+  {
+    id: 'p1',
+    slug: 'wild-turmeric',
+    name: 'Wild Turmeric (Kasthoori Manjal)',
+    price: 2500,
+    originalPrice: 3500,
+    description:
+      '100% pure wild turmeric powder. Great for skin and overall wellness. Sourced ethically.',
+    shortDescription: 'Pure Kasthoori Manjal — skin & glow care',
+    images: ['/assets/images/manjal.jpeg', '/assets/images/three together.png'],
+    category: 'Wellness',
+    stock: 120,
+    featured: true,
+    bestseller: true,
+    gramPricing: true,
+    packOptions: [
+      { grams: 30, price: 149, originalPrice: 165 },
+      { grams: 50, price: 249, originalPrice: 280 },
+      { grams: 125, price: 449, originalPrice: 563 },
+      { grams: 250, price: 749, originalPrice: 1125 },
+    ],
   },
   {
     id: 'p3',

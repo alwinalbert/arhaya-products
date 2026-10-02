@@ -33,11 +33,11 @@ export default function ProductCard({ product }: Props) {
   const productType = product.name.toLowerCase().includes('deodorant') ? 'Mineral Based' : 'Botanical'
 
   return (
-    <div className="card-hover overflow-hidden rounded-[28px] border border-[#ebdfd0] bg-white/80 p-3 shadow-[0_12px_30px_rgba(47,35,24,0.05)] backdrop-blur-sm">
+    <div className="card-hover flex h-full flex-col overflow-hidden rounded-[28px] border border-[#ebdfd0] bg-white/80 p-3 shadow-[0_12px_30px_rgba(47,35,24,0.05)] backdrop-blur-sm">
       <Link to={`/products/${product.slug}`} className="block overflow-hidden rounded-[20px]">
-        <img src={product.images[0]} alt={product.name} className="h-64 w-full rounded-[20px] object-cover transition-transform duration-500 hover:scale-[1.03]" />
+        <img src={product.images[0]} alt={product.name} className="aspect-[673/713] w-full rounded-[20px] object-contain object-center transition-transform duration-500 hover:scale-[1.03]" />
       </Link>
-      <div className="mt-4 px-1 pb-1">
+      <div className="mt-4 flex flex-1 flex-col px-1 pb-1">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a675a]">
           <span>{productType}</span>
           {discount > 0 && <span className="rounded-full bg-[#eef7f0] px-2 py-1 text-[#2f6d50]">{discount}% off</span>}
@@ -58,7 +58,7 @@ export default function ProductCard({ product }: Props) {
         </div>
         {product.packSize && <div className="mt-1 text-xs text-stone-500">Pack size: {product.packSize}</div>}
         {product.gramPricing && <div className="mt-1 text-xs text-stone-500">From {lowestPack?.grams ?? 1000} g · Choose your pack size.</div>}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-auto flex gap-2 pt-4">
           {product.gramPricing ? (
             <Link to={`/products/${product.slug}`} className="flex-1 rounded-full bg-[#1f2d29] px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#0f1714]">Choose weight</Link>
           ) : (

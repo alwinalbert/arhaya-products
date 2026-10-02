@@ -20,7 +20,7 @@ export default function Navbar() {
 
           <Link to="/" onClick={closeMenu} aria-label="Arhaya home" className="flex min-w-0 items-center gap-2 text-[24px] font-semibold font-serif tracking-[-0.045em] text-[#1f1a17] sm:text-3xl">
             <img src="/assets/images/logo.jpg" alt="Arhaya botanical logo" className="h-9 w-9 rounded-full object-cover" />
-            Arhaya
+            <span>Arhaya<sup className="brand-mark">®</sup></span>
           </Link>
 
           <nav className="hidden items-center gap-7 md:flex">

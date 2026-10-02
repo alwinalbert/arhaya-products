@@ -7,7 +7,7 @@ import CredentialStrip from './CredentialStrip'
 export default function Footer() {
   return (
     <footer className="mt-12 border-t border-[#2f513d] bg-[#173b2b] py-8 text-white">
-      <div className="container mx-auto grid grid-cols-1 gap-6 md:grid-cols-5">
+      <div className="container mx-auto grid grid-cols-1 gap-6 md:grid-cols-6">
         <div className="md:col-span-2">
           <div className="mb-3 flex items-center gap-3 text-xl font-semibold tracking-tight">
             <img src="/assets/images/logo.jpg" alt="Arhaya logo" className="h-9 w-9 rounded-full object-cover" />
@@ -51,6 +51,17 @@ export default function Footer() {
             <li><Link to="/terms">Terms</Link></li>
             <li><Link to="/shipping-policy">Shipping</Link></li>
           </ul>
+        </div>
+
+        <div>
+          <h5 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#dce9d6]">Registered address</h5>
+          <address className="not-italic text-xs leading-5 text-[#bdd0c0]">
+            Arhaya Products<br />
+            Thottabhagom PO<br />
+            Thiruvalla<br />
+            Pathanamthitta, Kerala<br />
+            India
+          </address>
         </div>
       </div>
 

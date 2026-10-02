@@ -4,6 +4,8 @@ import { Leaf } from 'lucide-react'
 export default function AnnouncementBar() {
   const messages = [
     'Free shipping across India',
+    'Free delivery above ₹220',
+    'Delivery within 2-5 days across India',
     'Nature-led essentials for everyday rituals',
     'Thoughtful choices for healthier routines',
     'Secure payment via UPI',
