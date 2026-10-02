@@ -18,6 +18,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
 import AnnouncementBar from './components/AnnouncementBar'
+import LoadingScreen from './components/LoadingScreen'
 
 function ScrollToTopOnRouteChange() {
   const { pathname } = useLocation()
@@ -30,6 +31,18 @@ function ScrollToTopOnRouteChange() {
 }
 
 export default function App() {
+  const [isLoading, setIsLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    const loadingTimer = window.setTimeout(() => setIsLoading(false), 2000)
+
+    return () => window.clearTimeout(loadingTimer)
+  }, [])
+
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-stone-50 text-stone-900">
       <ScrollToTopOnRouteChange />

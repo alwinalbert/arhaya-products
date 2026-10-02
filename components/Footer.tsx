@@ -2,6 +2,7 @@ import React from 'react'
 import { Camera, MessageCircle, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { generateWhatsAppUrl } from '../utils/whatsapp'
+import CredentialStrip from './CredentialStrip'
 
 export default function Footer() {
   return (
@@ -51,6 +52,10 @@ export default function Footer() {
             <li><Link to="/shipping-policy">Shipping</Link></li>
           </ul>
         </div>
+      </div>
+
+      <div className="mt-10">
+        <CredentialStrip compact />
       </div>
 
       <div className="container mx-auto mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#e6dbcd] pt-5 text-sm text-[#675b53] md:flex-row">

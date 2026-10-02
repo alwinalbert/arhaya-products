@@ -2,6 +2,7 @@ import React from 'react'
 import { ArrowRight, Camera, Leaf, ShieldCheck, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductGrid from '../components/ProductGrid'
+import CredentialStrip from '../components/CredentialStrip'
 
 const highlights = [
   { icon: Leaf, title: 'Plant-led wellbeing', text: 'Familiar botanicals chosen to bring a more grounded, mindful rhythm to everyday life.' },
@@ -55,6 +56,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CredentialStrip />
 
       <section className="container mx-auto mt-16 mb-14">
         <div className="grid gap-5 md:grid-cols-3">

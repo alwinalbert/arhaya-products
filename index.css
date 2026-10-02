@@ -30,6 +30,57 @@ body {
   color: #1c1917;
 }
 
+.loading-screen {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(214, 180, 128, 0.2), transparent 24%),
+    linear-gradient(180deg, #f9f5f1 0%, #f3eadf 100%);
+  color: #214a35;
+}
+
+.loading-screen__content {
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  animation: loading-screen-enter 0.6s ease both;
+}
+
+.loading-screen__brand {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.25rem, 8vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+}
+
+.loading-screen__label {
+  margin: 0;
+  color: #7a675a;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@keyframes loading-screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen__content {
+    animation: none;
+  }
+}
+
 .announcement-track {
   animation: announcement-marquee 32s linear infinite;
 }
