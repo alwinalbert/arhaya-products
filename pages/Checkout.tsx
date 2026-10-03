@@ -4,7 +4,7 @@ import { useCartStore } from '../store/cartStore'
 import products from '../data/products'
 import { generateWhatsAppUrl, orderWhatsAppMessage } from '../utils/whatsapp'
 
-const UPI_ID = 'stk-9400924800@okbizaxis'
+const UPI_ID = 'arhayaproducts@sib'
 
 function generateOrderId() {
   return 'ARH-' + Math.random().toString(36).substr(2, 6).toUpperCase()
