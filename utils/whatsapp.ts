@@ -16,8 +16,9 @@ export function orderWhatsAppMessage(
   customer: { name: string; phone: string; email: string; address: string; city: string; state: string; pin: string },
   items: OrderItem[],
   total: number,
-    payment: string,
-    transactionId: string
+  deliveryCharge: number,
+  payment: string,
+  transactionId: string
 ) {
   const itemLines = items.map((item) => `- ${item.productName}${item.weightGrams ? ` (${item.weightGrams} g)` : ''} x ${item.quantity}`).join('\n')
 
@@ -32,7 +33,7 @@ export function orderWhatsAppMessage(
     '',
     'Items:',
     itemLines,
-    'Delivery Charge: Free',
+    `Delivery Charge: ${deliveryCharge === 0 ? 'Free' : `₹${deliveryCharge}`}`,
     `Total: ₹${total}`,
       `Payment: ${payment.toUpperCase()}`,
       `Transaction ID: ${transactionId}`,

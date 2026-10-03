@@ -1,102 +1,177 @@
 import React, { useState } from 'react'
+import { Check, ChevronRight, CreditCard, LockKeyhole, Mail, MapPin, Package, ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import products from '../data/products'
 import { generateWhatsAppUrl, orderWhatsAppMessage } from '../utils/whatsapp'
+import { FREE_DELIVERY_THRESHOLD, getDeliveryCharge } from '../utils/shipping'
 
-const UPI_ID = 'arhayaproducts@sib'
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void }
+  }
+}
 
 function generateOrderId() {
   return 'ARH-' + Math.random().toString(36).substr(2, 6).toUpperCase()
 }
 
 export default function Checkout() {
-  const items = useCartStore((s) => s.items)
-  const total = useCartStore((s) => s.getTotal())
-  const clear = useCartStore((s) => s.clearCart)
+  const items = useCartStore((state) => state.items)
+  const total = useCartStore((state) => state.getTotal())
+  const deliveryCharge = getDeliveryCharge(total)
+  const orderTotal = total + deliveryCharge
+  const clear = useCartStore((state) => state.clearCart)
   const navigate = useNavigate()
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', state: '', pin: '' })
+  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
 
-  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', state: '', pin: '', transactionId: '' })
-  const [isMobileDevice] = useState(() => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
-  const [isAndroidDevice] = useState(() => /Android/i.test(navigator.userAgent))
-  const [upiCopied, setUpiCopied] = useState(false)
+  const updateField = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }))
 
-  const copyUpiId = async () => {
-    await navigator.clipboard.writeText(UPI_ID)
-    setUpiCopied(true)
-  }
-
-  const placeOrder = () => {
-    if (!form.name || !form.phone || !form.address || !form.pin || !form.transactionId) {
-      return alert('Please fill all required fields')
-    }
+  const placeOrder = async (payment: { id: string; orderId: string }) => {
     const orderId = generateOrderId()
-    const order = { id: orderId, items, subtotal: total, deliveryCharge: 0, total, customer: form, payment: 'upi', transactionId: form.transactionId }
+    const order = { id: orderId, items, subtotal: total, deliveryCharge, total: orderTotal, customer: form, payment: 'razorpay', transactionId: payment.id, razorpayOrderId: payment.orderId }
     localStorage.setItem('last_order', JSON.stringify(order))
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
       quantity: item.quantity,
       weightGrams: item.weightGrams,
     }))
-    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, total, 'upi', form.transactionId)), '_blank', 'noopener,noreferrer')
+    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, orderTotal, deliveryCharge, 'razorpay', payment.id)), '_blank', 'noopener,noreferrer')
     clear()
     navigate('/order-success')
   }
 
-  if (items.length === 0) return <div className="container mx-auto p-8">Your cart is empty.</div>
+  const startPayment = async () => {
+    if (!form.name || !form.phone || !form.address || !form.pin) {
+      alert('Please fill all required fields')
+      return
+    }
+    setPaymentError('')
+    setPaymentLoading(true)
+    try {
+      if (!window.Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement('script')
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+          script.onload = () => resolve()
+          script.onerror = () => reject(new Error('Unable to load Razorpay checkout'))
+          document.body.appendChild(script)
+        })
+      }
+
+      const response = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: orderTotal * 100 }),
+      })
+      const createdOrder = await response.json()
+      if (!response.ok) throw new Error(createdOrder.error || 'Unable to start payment')
+
+      await new Promise<void>((resolve, reject) => {
+        const Razorpay = window.Razorpay
+        if (!Razorpay) {
+          reject(new Error('Razorpay checkout is unavailable'))
+          return
+        }
+        const razorpay = new Razorpay({
+          key: createdOrder.keyId,
+          amount: createdOrder.amount,
+          currency: createdOrder.currency,
+          name: 'Arhaya Products',
+          description: 'Botanical essentials',
+          order_id: createdOrder.id,
+          prefill: { name: form.name, email: form.email, contact: form.phone },
+          theme: { color: '#075c3d' },
+          handler: async (payment: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
+            const verification = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ razorpayOrderId: payment.razorpay_order_id, razorpayPaymentId: payment.razorpay_payment_id, razorpaySignature: payment.razorpay_signature }),
+            })
+            const result = await verification.json()
+            if (!verification.ok || !result.verified) return reject(new Error(result.error || 'Payment verification failed'))
+            await placeOrder({ id: payment.razorpay_payment_id, orderId: payment.razorpay_order_id })
+            resolve()
+          },
+          modal: { ondismiss: () => reject(new Error('Payment was cancelled')) },
+        })
+        razorpay.open()
+      })
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : 'Payment could not be completed')
+    } finally {
+      setPaymentLoading(false)
+    }
+  }
+
+  if (items.length === 0) return <div className="container mx-auto py-20 text-center"><h1 className="text-2xl font-black text-[#15251d]">Your cart is empty.</h1></div>
 
   return (
-    <div className="container mx-auto py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <form onSubmit={(event) => { event.preventDefault(); placeOrder() }} className="md:col-span-2">
-        <h2 className="text-xl font-semibold mb-4">Shipping Details</h2>
-        <div className="grid grid-cols-1 gap-3">
-          <input required placeholder="Full Name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="p-2 border rounded" />
-          <input required type="tel" inputMode="tel" placeholder="Phone *" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="p-2 border rounded" />
-          <input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="p-2 border rounded" />
-          <input required placeholder="Address *" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="p-2 border rounded" />
-          <input placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="p-2 border rounded" />
-          <input placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="p-2 border rounded" />
-            <input required inputMode="numeric" placeholder="PIN Code *" value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value })} className="p-2 border rounded" />
-        </div>
+    <div className="container mx-auto py-8 sm:py-12">
+      <div className="flex items-center justify-between gap-4">
+        <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7a675a]">Almost there</p><h1 className="mt-1 text-4xl font-black tracking-tight text-[#15251d]">Checkout</h1></div>
+        <div className="hidden items-center gap-2 text-sm font-semibold text-[#214a35] sm:flex"><LockKeyhole size={17} /> Secure checkout</div>
+      </div>
 
-        <h2 className="text-xl font-semibold mt-6 mb-2">Payment</h2>
-        <div className="flex gap-4">
-          <label className="inline-flex items-center gap-2"><input type="radio" name="pay" checked readOnly /> UPI</label>
-        </div>
-        <div className="mt-4 rounded border bg-amber-50 p-4">
-          <div className="text-sm text-gray-600">Pay securely via UPI</div>
-          <div className="mt-1 font-semibold">UPI ID: {UPI_ID}</div>
-          {isMobileDevice ? (
-            <a
-              href={isAndroidDevice
-                ? `intent://pay?pa=${encodeURIComponent(UPI_ID)}&pn=Arhaya%20Products&am=${total}&cu=INR#Intent;scheme=upi;end`
-                : `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=Arhaya%20Products&am=${total}&cu=INR`}
-              className="mt-3 inline-block rounded bg-amber-600 px-4 py-2 font-semibold text-white"
-            >
-              Pay ₹{total} via UPI
-            </a>
-          ) : (
-            <button type="button" onClick={copyUpiId} className="mt-3 rounded bg-amber-600 px-4 py-2 font-semibold text-white">
-              {upiCopied ? 'UPI ID copied' : 'Copy UPI ID'}
-            </button>
-          )}
-          {!isMobileDevice && <p className="mt-2 text-sm text-gray-600">Open your UPI app, pay ₹{total}, then enter the transaction ID below.</p>}
-        </div>
-        <div className="mt-4">
-          <input required placeholder="Transaction ID *" value={form.transactionId} onChange={(e) => setForm({ ...form, transactionId: e.target.value })} className="w-full p-2 border rounded" />
-          <p className="mt-1 text-sm text-gray-500">Complete the UPI payment, then enter the transaction ID shown by your payment app.</p>
-        </div>
-        <div className="mt-6">
-          <button type="submit" className="px-6 py-3 bg-amber-600 text-white rounded">Place Order</button>
-        </div>
-      </form>
+      <div className="mt-8 flex items-center justify-between rounded-2xl border border-[#eadcc5] bg-[#f8f4e8] px-5 py-4 sm:px-10">
+        {['Information', 'Shipping', 'Payment'].map((step, index) => (
+          <React.Fragment key={step}>
+            <div className="flex items-center gap-2 text-center"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#075c3d] text-sm font-bold text-white">{index + 1}</span><span className="hidden text-sm font-semibold text-[#214a35] sm:inline">{step}</span></div>
+            {index < 2 && <div className="h-px flex-1 bg-[#cdbfa8] mx-3 sm:mx-6" />}
+          </React.Fragment>
+        ))}
+      </div>
 
-      <aside className="p-4 border rounded">
-        <h3 className="font-semibold">Order Summary</h3>
-        <div className="mt-2">Items: {items.length}</div>
-        <div className="mt-2">Delivery Charge: <span className="font-semibold text-green-700">Free</span></div>
-        <div className="mt-2">Total: ₹{total}</div>
-      </aside>
+      <div className="mt-7 grid gap-7 lg:grid-cols-[1fr_340px]">
+        <form onSubmit={(event) => { event.preventDefault(); void startPayment() }} className="space-y-4">
+          <section className="rounded-2xl border border-[#eadcc5] bg-white/80 p-5 sm:p-6">
+            <h2 className="flex items-center gap-3 text-xl font-bold text-[#15251d]"><Mail size={20} className="text-[#214a35]" /> Contact information</h2>
+            <input type="email" placeholder="Email address" value={form.email} onChange={(event) => updateField('email', event.target.value)} className="checkout-input mt-4" />
+          </section>
+
+          <section className="rounded-2xl border border-[#eadcc5] bg-white/80 p-5 sm:p-6">
+            <h2 className="flex items-center gap-3 text-xl font-bold text-[#15251d]"><MapPin size={20} className="text-[#214a35]" /> Shipping address</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <input required placeholder="Full name *" value={form.name} onChange={(event) => updateField('name', event.target.value)} className="checkout-input sm:col-span-2" />
+              <input required type="tel" inputMode="tel" placeholder="Phone number *" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} className="checkout-input sm:col-span-2" />
+              <input required placeholder="Address *" value={form.address} onChange={(event) => updateField('address', event.target.value)} className="checkout-input sm:col-span-2" />
+              <input placeholder="State" value={form.state} onChange={(event) => updateField('state', event.target.value)} className="checkout-input" />
+              <input placeholder="City" value={form.city} onChange={(event) => updateField('city', event.target.value)} className="checkout-input" />
+              <input required inputMode="numeric" placeholder="Pincode *" value={form.pin} onChange={(event) => updateField('pin', event.target.value)} className="checkout-input sm:col-span-2" />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[#eadcc5] bg-white/80 p-5 sm:p-6">
+            <h2 className="flex items-center gap-3 text-xl font-bold text-[#15251d]"><CreditCard size={20} className="text-[#214a35]" /> Payment method</h2>
+            <div className="mt-4 rounded-xl border border-[#b9d0b5] bg-[#f4faf0] p-4"><p className="font-semibold text-[#214a35]">● Razorpay secure checkout</p><p className="mt-2 text-sm text-[#584e49]">Pay securely using UPI, cards, net banking, or supported wallets.</p></div>
+            {paymentError && <p role="alert" className="mt-4 rounded-lg bg-rose-50 p-3 text-sm font-medium text-rose-700">{paymentError}</p>}
+            <label className="mt-4 flex items-start gap-2 text-sm text-[#584e49]"><input required type="checkbox" className="mt-1 accent-[#075c3d]" /> I agree to the Terms &amp; Conditions</label>
+            <button type="submit" disabled={paymentLoading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#075c3d] px-5 py-3.5 font-bold text-white hover:bg-[#064d34] disabled:cursor-wait disabled:opacity-60">{paymentLoading ? 'Opening secure checkout…' : 'Pay securely'} <Check size={18} /></button>
+          </section>
+        </form>
+
+        <aside className="h-fit rounded-2xl border border-[#eadcc5] bg-[#f8f4e8] p-5 sm:p-6 lg:sticky lg:top-28">
+          <h2 className="text-2xl font-black text-[#15251d]">Order Summary</h2>
+          <div className="mt-5 space-y-4">
+            {items.map((item) => {
+              const product = products.find((entry) => entry.id === item.productId)
+              if (!product) return null
+              return <div key={`${item.productId}-${item.weightGrams ?? 'default'}`} className="flex items-center gap-3"><img src={product.images[0]} alt={product.name} className="h-16 w-16 rounded-lg bg-white object-contain" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-[#1b1714]">{product.name}</p><p className="text-xs text-[#7a675a]">Qty {item.quantity}{item.weightGrams ? ` · ${item.weightGrams} g` : ''}</p></div><span className="text-sm font-bold">₹{(item.unitPrice ?? product.price) * item.quantity}</span></div>
+            })}
+          </div>
+          <div className="my-5 border-t border-[#dfd4c5]" />
+          <div className="space-y-3 text-sm text-[#584e49]"><div className="flex justify-between"><span>Subtotal</span><span className="font-semibold text-[#1b1714]">₹{total}</span></div><div className="flex justify-between"><span>Shipping</span><span className={`font-semibold ${deliveryCharge === 0 ? 'text-[#1f6245]' : 'text-[#584e49]'}`}>{deliveryCharge === 0 ? `Free above ₹${FREE_DELIVERY_THRESHOLD}` : `₹${deliveryCharge}`}</span></div></div>
+          <div className="my-5 border-t border-[#dfd4c5]" />
+          <div className="flex justify-between text-xl font-black text-[#15251d]"><span>Total</span><span>₹{orderTotal}</span></div>
+          <p className="mt-5 flex items-center gap-2 text-xs leading-5 text-[#7a675a]"><ShieldCheck size={16} className="shrink-0 text-[#214a35]" /> Your information is used only to complete this order.</p>
+        </aside>
+      </div>
+
+      <section className="mt-10 grid gap-4 rounded-2xl bg-[#edf4df] p-5 sm:grid-cols-3 sm:p-6">
+        {[['Blog & Recipes', Package], ['Sustainability', ShieldCheck], ['Wholesale enquiries', ChevronRight]].map(([label, Icon]) => <div key={label as string} className="flex items-center gap-3 text-sm font-semibold text-[#214a35]"><Icon size={21} />{label as string}</div>)}
+      </section>
     </div>
   )
 }
