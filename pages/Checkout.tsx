@@ -25,6 +25,12 @@ export default function Checkout() {
     setUpiCopied(true)
   }
 
+  const openUpiPayment = (event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+    event.preventDefault()
+    const deepLink = `upi://pay?pa=${UPI_ID}&pn=Arhaya%20Products&am=${total}&cu=INR`
+    window.location.href = deepLink
+  }
+
   const placeOrder = () => {
     if (!form.name || !form.phone || !form.address || !form.pin || !form.transactionId) {
       return alert('Please fill all required fields')
@@ -68,6 +74,7 @@ export default function Checkout() {
           {isMobileDevice ? (
             <a
               href={`upi://pay?pa=${UPI_ID}&pn=Arhaya%20Products&am=${total}&cu=INR`}
+              onClick={openUpiPayment}
               className="mt-3 inline-block rounded bg-amber-600 px-4 py-2 font-semibold text-white"
             >
               Pay ₹{total} via UPI
