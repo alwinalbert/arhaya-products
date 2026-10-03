@@ -25,8 +25,7 @@ export default function Checkout() {
     setUpiCopied(true)
   }
 
-  const openUpiPayment = (event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
-    event.preventDefault()
+  const openUpiPayment = () => {
     const deepLink = `upi://pay?pa=${UPI_ID}&pn=Arhaya%20Products&am=${total}&cu=INR`
     window.location.href = deepLink
   }
@@ -72,13 +71,13 @@ export default function Checkout() {
           <div className="text-sm text-gray-600">Pay securely via UPI</div>
           <div className="mt-1 font-semibold">UPI ID: {UPI_ID}</div>
           {isMobileDevice ? (
-            <a
-              href={`upi://pay?pa=${UPI_ID}&pn=Arhaya%20Products&am=${total}&cu=INR`}
+            <button
+              type="button"
               onClick={openUpiPayment}
               className="mt-3 inline-block rounded bg-amber-600 px-4 py-2 font-semibold text-white"
             >
               Pay ₹{total} via UPI
-            </a>
+            </button>
           ) : (
             <button type="button" onClick={copyUpiId} className="mt-3 rounded bg-amber-600 px-4 py-2 font-semibold text-white">
               {upiCopied ? 'UPI ID copied' : 'Copy UPI ID'}
