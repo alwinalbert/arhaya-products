@@ -18,16 +18,12 @@ export default function Checkout() {
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', state: '', pin: '', transactionId: '' })
   const [isMobileDevice] = useState(() => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
+  const [isAndroidDevice] = useState(() => /Android/i.test(navigator.userAgent))
   const [upiCopied, setUpiCopied] = useState(false)
 
   const copyUpiId = async () => {
     await navigator.clipboard.writeText(UPI_ID)
     setUpiCopied(true)
-  }
-
-  const openUpiPayment = () => {
-    const deepLink = `upi://pay?pa=${UPI_ID}&pn=Arhaya%20Products&am=${total}&cu=INR`
-    window.location.href = deepLink
   }
 
   const placeOrder = () => {
@@ -71,13 +67,14 @@ export default function Checkout() {
           <div className="text-sm text-gray-600">Pay securely via UPI</div>
           <div className="mt-1 font-semibold">UPI ID: {UPI_ID}</div>
           {isMobileDevice ? (
-            <button
-              type="button"
-              onClick={openUpiPayment}
+            <a
+              href={isAndroidDevice
+                ? `intent://pay?pa=${encodeURIComponent(UPI_ID)}&pn=Arhaya%20Products&am=${total}&cu=INR#Intent;scheme=upi;end`
+                : `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=Arhaya%20Products&am=${total}&cu=INR`}
               className="mt-3 inline-block rounded bg-amber-600 px-4 py-2 font-semibold text-white"
             >
               Pay ₹{total} via UPI
-            </button>
+            </a>
           ) : (
             <button type="button" onClick={copyUpiId} className="mt-3 rounded bg-amber-600 px-4 py-2 font-semibold text-white">
               {upiCopied ? 'UPI ID copied' : 'Copy UPI ID'}
