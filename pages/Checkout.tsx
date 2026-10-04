@@ -39,7 +39,7 @@ export default function Checkout() {
 
   const updateField = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }))
 
-  const placeOrder = async (payment: { id: string; orderId: string; method: string }, whatsappWindow: Window | null) => {
+  const placeOrder = async (payment: { id: string; orderId: string; method: string }) => {
     const orderId = generateOrderId()
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
@@ -49,9 +49,6 @@ export default function Checkout() {
     const whatsappUrl = generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, orderTotal, deliveryCharge, payment.method, payment.id))
     const order = { id: orderId, items, subtotal: total, deliveryCharge, total: orderTotal, customer: form, payment: payment.method, transactionId: payment.id, gatewayOrderId: payment.orderId, whatsappUrl }
     localStorage.setItem('last_order', JSON.stringify(order))
-    if (whatsappWindow) {
-      whatsappWindow.location.href = whatsappUrl
-    }
     clear()
     navigate('/order-success')
   }
@@ -76,10 +73,6 @@ export default function Checkout() {
     }
     setPaymentError('')
     setPaymentLoading(true)
-    const whatsappWindow = window.open('', '_blank')
-    if (whatsappWindow) {
-      whatsappWindow.document.title = 'Opening WhatsApp…'
-    }
     try {
       if (paymentMethod === 'razorpay') {
         if (!window.Razorpay) {
@@ -118,7 +111,7 @@ export default function Checkout() {
               })
               const result = await verification.json()
               if (!verification.ok || !result.verified) return reject(new Error(result.error || 'Payment verification failed'))
-              await placeOrder({ id: payment.razorpay_payment_id, orderId: payment.razorpay_order_id, method: 'razorpay' }, whatsappWindow)
+              await placeOrder({ id: payment.razorpay_payment_id, orderId: payment.razorpay_order_id, method: 'razorpay' })
               resolve()
             },
             modal: { ondismiss: () => reject(new Error('Payment was cancelled')) },
@@ -145,7 +138,7 @@ export default function Checkout() {
         })
         const verified = await verification.json()
         if (!verification.ok || !verified.verified) throw new Error(verified.error || 'Payment verification failed')
-        await placeOrder({ id: verified.transactionId, orderId: createdOrder.orderId, method: 'cashfree' }, whatsappWindow)
+        await placeOrder({ id: verified.transactionId, orderId: createdOrder.orderId, method: 'cashfree' })
       } else {
         const response = await fetch('/api/create-paytm-order', {
           method: 'POST',
@@ -182,10 +175,9 @@ export default function Checkout() {
         })
         const verified = await verification.json()
         if (!verification.ok || !verified.verified) throw new Error(verified.error || 'Payment verification failed')
-        await placeOrder({ id: verified.transactionId, orderId: createdOrder.orderId, method: 'paytm' }, whatsappWindow)
+        await placeOrder({ id: verified.transactionId, orderId: createdOrder.orderId, method: 'paytm' })
       }
     } catch (error) {
-      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close()
       setPaymentError(error instanceof Error ? error.message : 'Payment could not be completed')
     } finally {
       setPaymentLoading(false)
