@@ -9,6 +9,15 @@ import { FREE_DELIVERY_THRESHOLD, getDeliveryCharge } from '../utils/shipping'
 declare global {
   interface Window {
     Razorpay?: new (options: Record<string, unknown>) => { open: () => void }
+    Cashfree?: (options: { mode: 'sandbox' | 'production' }) => {
+      checkout: (options: { paymentSessionId: string; redirectTarget: '_modal' }) => Promise<{ error?: { message?: string } }>
+    }
+    Paytm?: {
+      CheckoutJS: {
+        init: (config: Record<string, unknown>) => Promise<void>
+        invoke: () => void
+      }
+    }
   }
 }
 
@@ -24,24 +33,38 @@ export default function Checkout() {
   const clear = useCartStore((state) => state.clearCart)
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', state: '', pin: '' })
+  const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cashfree' | 'paytm'>('razorpay')
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [paymentError, setPaymentError] = useState('')
 
   const updateField = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }))
 
-  const placeOrder = async (payment: { id: string; orderId: string }) => {
+  const placeOrder = async (payment: { id: string; orderId: string; method: string }) => {
     const orderId = generateOrderId()
-    const order = { id: orderId, items, subtotal: total, deliveryCharge, total: orderTotal, customer: form, payment: 'razorpay', transactionId: payment.id, razorpayOrderId: payment.orderId }
+    const order = { id: orderId, items, subtotal: total, deliveryCharge, total: orderTotal, customer: form, payment: payment.method, transactionId: payment.id, gatewayOrderId: payment.orderId }
     localStorage.setItem('last_order', JSON.stringify(order))
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
       quantity: item.quantity,
       weightGrams: item.weightGrams,
     }))
-    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, orderTotal, deliveryCharge, 'razorpay', payment.id)), '_blank', 'noopener,noreferrer')
+    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, orderTotal, deliveryCharge, payment.method, payment.id)), '_blank', 'noopener,noreferrer')
     clear()
     navigate('/order-success')
   }
+
+  const loadScript = async (src: string, name: 'Cashfree' | 'Paytm') => {
+    if (window[name]) return
+    await new Promise<void>((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = src
+      script.onload = () => resolve()
+      script.onerror = () => reject(new Error(`Unable to load ${name} checkout`))
+      document.body.appendChild(script)
+    })
+  }
+
+  const customerPayload = { name: form.name, phone: form.phone, email: form.email }
 
   const startPayment = async () => {
     if (!form.name || !form.phone || !form.address || !form.pin) {
@@ -51,7 +74,8 @@ export default function Checkout() {
     setPaymentError('')
     setPaymentLoading(true)
     try {
-      if (!window.Razorpay) {
+      if (paymentMethod === 'razorpay') {
+        if (!window.Razorpay) {
         await new Promise<void>((resolve, reject) => {
           const script = document.createElement('script')
           script.src = 'https://checkout.razorpay.com/v1/checkout.js'
@@ -59,46 +83,100 @@ export default function Checkout() {
           script.onerror = () => reject(new Error('Unable to load Razorpay checkout'))
           document.body.appendChild(script)
         })
-      }
-
-      const response = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: orderTotal * 100 }),
-      })
-      const createdOrder = await response.json()
-      if (!response.ok) throw new Error(createdOrder.error || 'Unable to start payment')
-
-      await new Promise<void>((resolve, reject) => {
-        const Razorpay = window.Razorpay
-        if (!Razorpay) {
-          reject(new Error('Razorpay checkout is unavailable'))
-          return
         }
-        const razorpay = new Razorpay({
-          key: createdOrder.keyId,
-          amount: createdOrder.amount,
-          currency: createdOrder.currency,
-          name: 'Arhaya Products',
-          description: 'Botanical essentials',
-          order_id: createdOrder.id,
-          prefill: { name: form.name, email: form.email, contact: form.phone },
-          theme: { color: '#075c3d' },
-          handler: async (payment: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
-            const verification = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ razorpayOrderId: payment.razorpay_order_id, razorpayPaymentId: payment.razorpay_payment_id, razorpaySignature: payment.razorpay_signature }),
-            })
-            const result = await verification.json()
-            if (!verification.ok || !result.verified) return reject(new Error(result.error || 'Payment verification failed'))
-            await placeOrder({ id: payment.razorpay_payment_id, orderId: payment.razorpay_order_id })
-            resolve()
-          },
-          modal: { ondismiss: () => reject(new Error('Payment was cancelled')) },
+        const response = await fetch('/api/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: orderTotal * 100 }),
         })
-        razorpay.open()
-      })
+        const createdOrder = await response.json()
+        if (!response.ok) throw new Error(createdOrder.error || 'Unable to start payment')
+        await new Promise<void>((resolve, reject) => {
+          const Razorpay = window.Razorpay
+          if (!Razorpay) return reject(new Error('Razorpay checkout is unavailable'))
+          const razorpay = new Razorpay({
+            key: createdOrder.keyId,
+            amount: createdOrder.amount,
+            currency: createdOrder.currency,
+            name: 'Arhaya Products',
+            description: 'Botanical essentials',
+            order_id: createdOrder.id,
+            prefill: { name: form.name, email: form.email, contact: form.phone },
+            theme: { color: '#075c3d' },
+            handler: async (payment: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
+              const verification = await fetch('/api/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ razorpayOrderId: payment.razorpay_order_id, razorpayPaymentId: payment.razorpay_payment_id, razorpaySignature: payment.razorpay_signature }),
+              })
+              const result = await verification.json()
+              if (!verification.ok || !result.verified) return reject(new Error(result.error || 'Payment verification failed'))
+              await placeOrder({ id: payment.razorpay_payment_id, orderId: payment.razorpay_order_id, method: 'razorpay' })
+              resolve()
+            },
+            modal: { ondismiss: () => reject(new Error('Payment was cancelled')) },
+          })
+          razorpay.open()
+        })
+      } else if (paymentMethod === 'cashfree') {
+        const response = await fetch('/api/create-cashfree-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: orderTotal * 100, customer: customerPayload }),
+        })
+        const createdOrder = await response.json()
+        if (!response.ok) throw new Error(createdOrder.error || 'Unable to start payment')
+        await loadScript('https://sdk.cashfree.com/js/v3/cashfree.js', 'Cashfree')
+        if (!window.Cashfree) throw new Error('Cashfree checkout is unavailable')
+        const cashfree = window.Cashfree({ mode: createdOrder.mode || 'sandbox' })
+        const result = await cashfree.checkout({ paymentSessionId: createdOrder.paymentSessionId, redirectTarget: '_modal' })
+        if (result.error) throw new Error(result.error.message || 'Payment was cancelled')
+        const verification = await fetch('/api/verify-cashfree-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: createdOrder.orderId }),
+        })
+        const verified = await verification.json()
+        if (!verification.ok || !verified.verified) throw new Error(verified.error || 'Payment verification failed')
+        await placeOrder({ id: verified.transactionId, orderId: createdOrder.orderId, method: 'cashfree' })
+      } else {
+        const response = await fetch('/api/create-paytm-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: orderTotal * 100, customer: customerPayload }),
+        })
+        const createdOrder = await response.json()
+        if (!response.ok) throw new Error(createdOrder.error || 'Unable to start payment')
+        const paytmHost = createdOrder.environment === 'production' ? 'securegw.paytm.in' : 'securegw-stage.paytm.in'
+        await loadScript(`https://${paytmHost}/merchantpgpui/checkoutjs/merchants/${createdOrder.mid}.js`, 'Paytm')
+        if (!window.Paytm) throw new Error('Paytm checkout is unavailable')
+        await new Promise<void>((resolve, reject) => {
+          const checkout = window.Paytm?.CheckoutJS
+          if (!checkout) return reject(new Error('Paytm checkout is unavailable'))
+          checkout.init({
+            root: '',
+            flow: 'DEFAULT',
+            data: { orderId: createdOrder.orderId, token: createdOrder.txnToken, tokenType: 'TXN_TOKEN', amount: String(orderTotal) },
+            merchant: { mid: createdOrder.mid, name: 'Arhaya Products' },
+            handler: {
+              notifyMerchant: (eventName: string, data: { STATUS?: string; RESPMSG?: string }) => {
+                if (eventName === 'APP_CLOSED') reject(new Error('Payment was cancelled'))
+                if (eventName === 'SESSION_EXPIRED') reject(new Error('Payment session expired'))
+                if (eventName === 'TRANSACTION_STATUS' && data.STATUS === 'TXN_SUCCESS') resolve()
+                if (eventName === 'TRANSACTION_STATUS' && data.STATUS && data.STATUS !== 'TXN_SUCCESS') reject(new Error(data.RESPMSG || 'Payment failed'))
+              },
+            },
+          }).then(() => checkout.invoke()).catch(reject)
+        })
+        const verification = await fetch('/api/verify-paytm-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: createdOrder.orderId }),
+        })
+        const verified = await verification.json()
+        if (!verification.ok || !verified.verified) throw new Error(verified.error || 'Payment verification failed')
+        await placeOrder({ id: verified.transactionId, orderId: createdOrder.orderId, method: 'paytm' })
+      }
     } catch (error) {
       setPaymentError(error instanceof Error ? error.message : 'Payment could not be completed')
     } finally {
@@ -145,7 +223,19 @@ export default function Checkout() {
 
           <section className="rounded-2xl border border-[#eadcc5] bg-white/80 p-5 sm:p-6">
             <h2 className="flex items-center gap-3 text-xl font-bold text-[#15251d]"><CreditCard size={20} className="text-[#214a35]" /> Payment method</h2>
-            <div className="mt-4 rounded-xl border border-[#b9d0b5] bg-[#f4faf0] p-4"><p className="font-semibold text-[#214a35]">● Razorpay secure checkout</p><p className="mt-2 text-sm text-[#584e49]">Pay securely using UPI, cards, net banking, or supported wallets.</p></div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              {[
+                ['razorpay', 'Razorpay'],
+                ['cashfree', 'Cashfree'],
+                ['paytm', 'Paytm'],
+              ].map(([value, label]) => (
+                <label key={value} className={`cursor-pointer rounded-xl border p-3 text-sm font-semibold transition ${paymentMethod === value ? 'border-[#075c3d] bg-[#f4faf0] text-[#214a35]' : 'border-[#eadcc5] text-[#584e49]'}`}>
+                  <input type="radio" name="payment-method" value={value} checked={paymentMethod === value} onChange={() => setPaymentMethod(value as typeof paymentMethod)} className="mr-2 accent-[#075c3d]" />
+                  {label}
+                </label>
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-[#584e49]">Pay securely using UPI, cards, net banking, or supported wallets.</p>
             {paymentError && <p role="alert" className="mt-4 rounded-lg bg-rose-50 p-3 text-sm font-medium text-rose-700">{paymentError}</p>}
             <label className="mt-4 flex items-start gap-2 text-sm text-[#584e49]"><input required type="checkbox" className="mt-1 accent-[#075c3d]" /> I agree to the Terms &amp; Conditions</label>
             <button type="submit" disabled={paymentLoading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#075c3d] px-5 py-3.5 font-bold text-white hover:bg-[#064d34] disabled:cursor-wait disabled:opacity-60">{paymentLoading ? 'Opening secure checkout…' : 'Pay securely'} <Check size={18} /></button>

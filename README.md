@@ -19,8 +19,24 @@ npm run dev
 
 ## Payment credentials
 
-This frontend currently uses manual UPI checkout. Razorpay credentials are not wired into the browser.
+Checkout supports Razorpay, Cashfree, and Paytm through server-side order creation and payment verification. Keep every secret in the server environment; do not prefix secrets with `VITE_`, commit them, or place them in React code.
 
-Copy `.env.example` to `.env` only after replacing its placeholders. `VITE_RAZORPAY_KEY_ID` may be used by browser code; `RAZORPAY_KEY_SECRET` must remain on a server and must never be prefixed with `VITE_`, committed, or placed in React code. A backend is required before adding Razorpay order creation and payment-signature verification.
+Configure the gateway(s) you want to offer:
+
+```env
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+
+CASHFREE_ENVIRONMENT=sandbox
+CASHFREE_CLIENT_ID=
+CASHFREE_CLIENT_SECRET=
+
+PAYTM_ENVIRONMENT=staging
+PAYTM_MID=
+PAYTM_MERCHANT_KEY=
+PAYTM_WEBSITE=WEBSTAGING
+```
+
+Use the production environment values only after completing the respective provider's merchant onboarding and verification. The API handlers under `api/` require a serverless deployment that supports Node.js `fetch`.
 
 If you prefer, I can move files for you — tell me to "please move" and I'll attempt it.
