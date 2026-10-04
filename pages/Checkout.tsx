@@ -41,14 +41,16 @@ export default function Checkout() {
 
   const placeOrder = async (payment: { id: string; orderId: string; method: string }) => {
     const orderId = generateOrderId()
-    const order = { id: orderId, items, subtotal: total, deliveryCharge, total: orderTotal, customer: form, payment: payment.method, transactionId: payment.id, gatewayOrderId: payment.orderId }
-    localStorage.setItem('last_order', JSON.stringify(order))
     const orderItems = items.map((item) => ({
       productName: products.find((product) => product.id === item.productId)?.name || item.productId,
       quantity: item.quantity,
       weightGrams: item.weightGrams,
     }))
-    window.open(generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, orderTotal, deliveryCharge, payment.method, payment.id)), '_blank', 'noopener,noreferrer')
+    const whatsappUrl = generateWhatsAppUrl(orderWhatsAppMessage(orderId, form, orderItems, orderTotal, deliveryCharge, payment.method, payment.id))
+    const order = { id: orderId, items, subtotal: total, deliveryCharge, total: orderTotal, customer: form, payment: payment.method, transactionId: payment.id, gatewayOrderId: payment.orderId, whatsappUrl }
+    localStorage.setItem('last_order', JSON.stringify(order))
+    const whatsappWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+    if (!whatsappWindow) console.warn('WhatsApp could not be opened automatically; use the order-success link instead.')
     clear()
     navigate('/order-success')
   }
